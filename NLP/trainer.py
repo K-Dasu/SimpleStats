@@ -1,4 +1,3 @@
-import pandas as pd
 from pickle import dump
 from pickle import load
 import nltk
@@ -22,16 +21,18 @@ def load_tagger(filename):
     infile.close()
     return t
 
-# Uncomment to train
-brown_train = nltk.corpus.brown.tagged_sents()
-train_and_save('models/brown_all.pkl',brown_train)
+# Uncomment to train - Trains over ntlk brown corpus
+#brown_train = nltk.corpus.brown.tagged_sents()
+#train_and_save('models/brown_all.pkl',brown_train)
 
 # Loads tagger, loop will take in sentence and return list of tagged tokens
-t = load_tagger('models/brown_all.pkl')
-while 1:
-    print("Enter command:")
-    cmd = input()
-    tokens = nltk.word_tokenize(cmd)
-    t.tag(tokens)
-    tagged = t.tag(tokens)
-    print(tagged)
+
+def test_tagger():
+    t = load_tagger('models/brown_all.pkl')
+    while 1:
+        print("Enter command:")
+        cmd = input()
+        tokens = nltk.word_tokenize(cmd)
+        t.tag(tokens)
+        tagged = t.tag(tokens)
+        print(tagged)
