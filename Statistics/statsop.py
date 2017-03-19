@@ -12,7 +12,7 @@ class StatsOp:
         df.set_value(row, col, value)
         self.data = df
     
-    #insert into given column
+    #append value (row) into given column
     def insertRow(self, col, value):
         df = self.data
         dfTemp = pd.DataFrame(df.iloc[[0]])
@@ -31,29 +31,7 @@ class StatsOp:
         
     def getOperation(self):
         return self.operation
-    
-    #getter & setter for columns
-    #set column array = array
-    def setColumns(self, cols):
-        self.columns = cols
-        
-    #add columns to the array
-    def addColumn(self, col):
-        self.columns.append(col)
-    
-    def getColumns(self):
-        return self.columns
-    
-    #getter & setter for row
-    #set array = array
-    def setRows(self, rows):
-        self.rows = rows
-    #add individual rows    
-    def addRow(self, row):
-        self.rows.append(row)
-        
-    def getRows(self):
-        return self.rows
+ 
     
     #getter & setter for the filename
     def setFilename(self, fName):
@@ -88,7 +66,8 @@ class StatsOp:
         for col in columns:
             #description is a dataframe
             description = dataframe[col].describe()
-            print(description)
+            result.append(description)
+        return result    
     
     def calculateRowsMean(self):
         dataframe = self.data
@@ -97,9 +76,50 @@ class StatsOp:
         for row in rows:
             mean = dataframe.iloc[row].mean()
             result.append(mean)
-            print("Row " + str(row)+ " " + str(mean))
         return result
     
+    #print column
+    def printColumn(self,col):
+        df = self.data
+        print(df[col])
+    
+    
+    #print row
+    def printRow(self,row):
+        df = self.data
+        print(df.iloc[[row]])
+        
+    #List of all column and row names
+    def getColumnNames(self):
+        df = self.data
+        return list(df)
+    
+    def getRowNames(self):
+        df = self.data
+        return list(df.index)
+    
+     #getter & setter for columns
+    #set column array = array
+    def setColumns(self, cols):
+        self.columns = cols
+        
+    #add columns to the array
+    def addColumn(self, col):
+        self.columns.append(col)
+    
+    def getColumns(self):
+        return self.columns
+    
+    #getter & setter for row
+    #set array = array
+    def setRows(self, rows):
+        self.rows = rows
+    #add individual rows    
+    def addRow(self, row):
+        self.rows.append(row)
+        
+    def getRows(self):
+        return self.rows
     
         
     #example function    
