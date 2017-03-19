@@ -6,6 +6,25 @@ class StatsOp:
         self.columns = []
         self.rows = []
     
+    #update value
+    def updateCell(self, col, row, value):
+        df = self.data
+        df.set_value(row, col, value)
+        self.data = df
+    
+    #insert into given column
+    def insertRow(self, col, value):
+        df = self.data
+        dfTemp = pd.DataFrame(df.iloc[[0]])
+        for i, row in dfTemp.iterrows():
+            for colName in list(df):
+                dfTemp.loc[i, colName] = np.nan
+        dfTemp.set_value(0, col, value)
+        df = df.append(dfTemp)
+        df = df.reset_index(drop=True)
+        self.data = df
+    
+    
     #getter and setter for operation
     def setOperation(self, op):
         self.operation = op
@@ -17,6 +36,7 @@ class StatsOp:
     #set column array = array
     def setColumns(self, cols):
         self.columns = cols
+        
     #add columns to the array
     def addColumn(self, col):
         self.columns.append(col)
@@ -54,14 +74,32 @@ class StatsOp:
     def calculateColumnsMean(self):
         dataframe = self.data
         columns = self.columns
+        result = []
         for col in columns:
-            print(col + " " + str(dataframe[col].mean()))
-                       
+            mean = dataframe[col].mean()
+            result.append(mean)
+            print(col + " " + str(mean))
+        return result
+       
+    def describeColumn(self):
+        dataframe = self.data
+        columns = self.columns
+        result = []
+        for col in columns:
+            #description is a dataframe
+            description = dataframe[col].describe()
+            print(description)
+    
     def calculateRowsMean(self):
         dataframe = self.data
         rows = self.rows
+        result = []
         for row in rows:
-            print("Row " + str(row)+ " " + str(dataframe.iloc[row].mean()))
+            mean = dataframe.iloc[row].mean()
+            result.append(mean)
+            print("Row " + str(row)+ " " + str(mean))
+        return result
+    
     
         
     #example function    
