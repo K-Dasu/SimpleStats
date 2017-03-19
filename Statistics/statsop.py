@@ -1,5 +1,7 @@
 import pandas as pd
+import os
 import os.path
+import fnmatch
 
 class StatsOp:
    
@@ -52,7 +54,19 @@ class StatsOp:
     #reads in csv file into a dataframe and stores that df as data
     #TODO: handle cases where the file is not in the format of csv...
     def setData(self, fName):
-        status = os.path.isfile(fName) 
+        #name.csv
+        hasExtension = fName.find(".")
+        status = False
+        if hasExtension < 0:
+            filename = fName + ".csv"
+            for file in os.listdir('.'):
+                if fnmatch.fnmatch(file, '*.csv'):
+                    if filename == file:
+                        fName = filename
+                        status = True
+        else:
+            status = os.path.isfile(fName)
+
         if status:
             self.data = pd.read_csv(fName)
             self.isInitialized = True
@@ -61,7 +75,7 @@ class StatsOp:
         self.isInitialized = status
         return status
     
-    def isInitialized(self):
+    def checkInitialized(self):
         return self.isInitialized
     
     def getData(self):
