@@ -10,6 +10,8 @@ class StatsOp:
         self.isInitialized = False
         self.columns = []
         self.rows = []
+        
+#<--------------- Table Operations --------------->
     
     #update value
     def updateCell(self, col, row, value):
@@ -35,7 +37,7 @@ class StatsOp:
         else:
             return None
     
-    
+#<--------------- Getter & Setter Operations --------------->
     #getter and setter for operation
     def setOperation(self, op):
         self.operation = op
@@ -75,15 +77,32 @@ class StatsOp:
         self.isInitialized = status
         return status
     
-    def checkInitialized(self):
-        return self.isInitialized
     
     def getData(self):
         if self.isInitialized:
             return self.data
         else:
             return None
+        
+        
+#<--------------- Querying Operations --------------->
+       
+    def checkInitialized(self):
+        return self.isInitialized
     
+    #returns the mean for the given column
+    def calculateColumnMean(self,col):
+        df = self.data
+        mean = df[col].mean()
+        return mean
+    
+    #returns the mean for the given row
+    def calculateRowMean(self, row):
+        df = self.data
+        mean = df.iloc[row].mean()
+        return mean
+    
+    #returns an array of the mean for each column
     def calculateColumnsMean(self):
         if self.isInitialized:
             dataframe = self.data
@@ -110,6 +129,7 @@ class StatsOp:
         else:
             return None
     
+     #returns an array of the mean for each row
     def calculateRowsMean(self):
         if self.isInitialized:
             dataframe = self.data
@@ -121,7 +141,10 @@ class StatsOp:
             return result
         else:
             return None
-    
+
+        
+#<--------------- Print Operations --------------->
+
     #print column
     def printColumn(self,col):
         if self.isInitialized:
@@ -154,6 +177,9 @@ class StatsOp:
         else:
             return None
     
+    
+#<--------------- Array Operations --------------->
+
     #Unused for now...
     
     #getter & setter for columns
@@ -179,7 +205,8 @@ class StatsOp:
     def getRows(self):
         return self.rows
     
-        
+#<--------------- Misc Operations --------------->
+   
     #example function    
     def testFunc(self):
         return 'hello world'
