@@ -1,28 +1,37 @@
 import pandas as pd
+import os.path
+
 class StatsOp:
    
     #constructor
     def __init__(self):
+        self.isInitialized = False
         self.columns = []
         self.rows = []
     
     #update value
     def updateCell(self, col, row, value):
-        df = self.data
-        df.set_value(row, col, value)
-        self.data = df
+        if self.isInitialized:
+            df = self.data
+            df.set_value(row, col, value)
+            self.data = df
+        else:
+            return None
     
     #append value (row) into given column
     def insertRow(self, col, value):
-        df = self.data
-        dfTemp = pd.DataFrame(df.iloc[[0]])
-        for i, row in dfTemp.iterrows():
-            for colName in list(df):
-                dfTemp.loc[i, colName] = np.nan
-        dfTemp.set_value(0, col, value)
-        df = df.append(dfTemp)
-        df = df.reset_index(drop=True)
-        self.data = df
+        if self.isInitialized:
+            df = self.data
+            dfTemp = pd.DataFrame(df.iloc[[0]])
+            for i, row in dfTemp.iterrows():
+                for colName in list(df):
+                    dfTemp.loc[i, colName] = np.nan
+            dfTemp.set_value(0, col, value)
+            df = df.append(dfTemp)
+            df = df.reset_index(drop=True)
+            self.data = df
+        else:
+            return None
     
     
     #getter and setter for operation
@@ -42,63 +51,98 @@ class StatsOp:
     
     #reads in csv file into a dataframe and stores that df as data
     #TODO: handle cases where the file is not in the format of csv...
-    #consider formats to handle...
     def setData(self, fName):
-        self.data = pd.read_csv(fName)
+        status = os.path.isfile(fName) 
+        if status:
+            self.data = pd.read_csv(fName)
+            self.isInitialized = True
+        else:
+            print("404 File:" + fName +" Not Found")
+        self.isInitialized = status
+        return status
+    
+    def isInitialized(self):
+        return self.isInitialized
     
     def getData(self):
-        return self.data
+        if self.isInitialized:
+            return self.data
+        else:
+            return None
     
     def calculateColumnsMean(self):
-        dataframe = self.data
-        columns = self.columns
-        result = []
-        for col in columns:
-            mean = dataframe[col].mean()
-            result.append(mean)
-            print(col + " " + str(mean))
-        return result
+        if self.isInitialized:
+            dataframe = self.data
+            columns = self.columns
+            result = []
+            for col in columns:
+                mean = dataframe[col].mean()
+                result.append(mean)
+                print(col + " " + str(mean))
+            return result
+        else:
+            return None
        
     def describeColumn(self):
-        dataframe = self.data
-        columns = self.columns
-        result = []
-        for col in columns:
-            #description is a dataframe
-            description = dataframe[col].describe()
-            result.append(description)
-        return result    
+        if self.isInitialized:
+            dataframe = self.data
+            columns = self.columns
+            result = []
+            for col in columns:
+                #description is a dataframe
+                description = dataframe[col].describe()
+                result.append(description)
+            return result
+        else:
+            return None
     
     def calculateRowsMean(self):
-        dataframe = self.data
-        rows = self.rows
-        result = []
-        for row in rows:
-            mean = dataframe.iloc[row].mean()
-            result.append(mean)
-        return result
+        if self.isInitialized:
+            dataframe = self.data
+            rows = self.rows
+            result = []
+            for row in rows:
+                mean = dataframe.iloc[row].mean()
+                result.append(mean)
+            return result
+        else:
+            return None
     
     #print column
     def printColumn(self,col):
-        df = self.data
-        print(df[col])
+        if self.isInitialized:
+            df = self.data
+            print(df[col])
+        else:
+            print("No Data Available")
     
     
     #print row
     def printRow(self,row):
-        df = self.data
-        print(df.iloc[[row]])
+        if self.isInitialized:
+            df = self.data
+            print(df.iloc[[row]])
+        else:
+            print("No Data Available")
         
     #List of all column and row names
     def getColumnNames(self):
-        df = self.data
-        return list(df)
+        if self.isInitialized:
+            df = self.data
+            return list(df)
+        else:
+            return None
     
     def getRowNames(self):
-        df = self.data
-        return list(df.index)
+        if self.isInitialized:
+            df = self.data
+            return list(df.index)
+        else:
+            return None
     
-     #getter & setter for columns
+    #Unused for now...
+    
+    #getter & setter for columns
     #set column array = array
     def setColumns(self, cols):
         self.columns = cols
