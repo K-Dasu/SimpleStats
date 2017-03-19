@@ -29,14 +29,27 @@ class Synthesizer:
     def tag(self, tokens):
         return self.tagger.tag(tokens)
 
+    def synonymLookUp(self,word):
+        #check if word is in synonynm
+        #return the appropriatly mapped word
+        return word
+    
     # attempt to initialize stats
-    def read_data_cmd(self, tokens):
-        if tokens[0][0].lower() is 'read':
-
+    def read_data_cmd(self, tokens): 
+        if tokens[0][0].lower() == 'read': #handles case of reading in data
             # next argument must be filename, attempt to set up the data
             if len(tokens) == 2:
-                return self.stats.setData(tokens[0][1])
-
+                return self.stats.setData(tokens[1][0])
+                          
+    def print_data_cmd(self, tokens):
+        print ("attempting to print..")
+        if tokens[0][0].lower() == 'show': # handles cases of printing or showing data
+            print("printing out requested data")
+            
+    def run_data_cmd(self, tokens):
+        if tokens[0][0].lower() == 'command': # handles cases statistic commands on data
+            print("printing out requested data")
+            
 
     # parse a noun or none tag and see what it is
     def parse_noun_or_none(self, nn):
@@ -84,18 +97,24 @@ class Synthesizer:
                 print('name found in rows')
         '''
 
-
         # check if command 
-        if tagged[0][1] is labels['verb']:
-
+        if tagged[0][1] == labels['verb']:
+            print("Processing Verb")
             # Try to interpret this as a read initialization command
             if not stats.checkInitialized():
-                read_data_cmd(tokens)
+                self.read_data_cmd(tagged)
             else:
+                print("Trying a non read command")
+                
+                command = self.synonymLookUp(tagged[0][0].lower())
+                print(command)
+                if command == "show":
+                    self.print_data_cmd(tagged)
                 pass # test printing column/row commands here?
 
-        if tagged[0][1] is labels['noun']:
+        if tagged[0][1] == labels['noun']:
 
+            print("Processing Noun")
             if not stats.checkInitialized():
                 pass
             else:
@@ -114,3 +133,5 @@ while(1):
 
     print(tagged)
     s.synthesize(tagged, cmd)
+    if(cmd == "quit"):
+        break
