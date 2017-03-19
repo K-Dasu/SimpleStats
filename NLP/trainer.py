@@ -3,6 +3,7 @@ from pickle import load
 import nltk
 import sys
 
+
 # Trains and saves a tagger model to a file
 # @filename name of file to save to
 # @train_set the tagged set to train on
@@ -36,3 +37,4 @@ def test_tagger():
         t.tag(tokens)
         tagged = t.tag(tokens)
         print(tagged)
+
