@@ -23,11 +23,11 @@ def load_tagger(filename):
     return t
 
 # Uncomment to train
-#brown_train = nltk.corpus.brown.tagged_sents(categories='news')
-#train_and_save('brownnews.pkl',brown_train)
+brown_train = nltk.corpus.brown.tagged_sents()
+train_and_save('models/brown_all.pkl',brown_train)
 
 # Loads tagger, loop will take in sentence and return list of tagged tokens
-t = load_tagger('models/brownnews.pkl')
+t = load_tagger('models/brown_all.pkl')
 while 1:
     print("Enter command:")
     cmd = input()
