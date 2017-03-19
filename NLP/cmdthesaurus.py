@@ -7,6 +7,10 @@ class CmdThesaurus:
 
         self.quitSynonyms = []
         self.openSynonyms = []
+        self.showSynonyms = []
+        # sums - total, sum, sigma
+        # calculate, get
+        # while, repeat
         synonyms = []
 
         # build quit synonyms
@@ -29,14 +33,28 @@ class CmdThesaurus:
 
         self.openSynonyms = synonyms
 
+        #build show/print synonyms
+        synonyms = []
+
+        synonyms = self.buildSynList(synonyms, "show", wn.VERB)
+        synonyms = list(set(synonyms))
+
+        synonyms = self.buildSynList(synonyms, "print", wn.VERB)
+        synonyms = list(set(synonyms))
+
+        self.showSynonyms = synonyms
 
     # returns true if word is a synonym of quit
     def isQuitSynonym(self, word):
         return (word in self.quitSynonyms)
 
-    # returns true if word is a synonym of quit
+    # returns true if word is a synonym of open
     def isOpenSynonym(self, word):
         return (word in self.openSynonyms)
+
+    # returns true if word is a synonym of show
+    def isOpenSynonym(self, word):
+        return (word in self.showSynonyms)
 
     # adds synonyms of words to a list
     # li - the list to add to -- will return this
