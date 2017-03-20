@@ -21,6 +21,7 @@ class StatsOp:
             self.data = df
         else:
             return None
+        
     #Passing in Excell Format or updating (ex: update A4, 5)    
     def updateCellExcell(self, cell, value):
         row = ""
@@ -42,6 +43,31 @@ class StatsOp:
                 colName = list(df)[colIndex - 1]
                 df.set_value(rowIndex, colName, value)
                 self.data = df
+            else:
+                return None
+        else:
+            return None
+        
+    def getCellExcell(self, cell):
+        row = ""
+        col = ""
+        for term in cell:
+            if term.isnumeric():
+                 row = row + term
+            else:
+                col = col + term
+        rowIndex = int(row) - 1
+        num = 0
+        for c in col:
+            if c in string.ascii_letters:
+                num = num * 26 + (ord(c.upper()) - ord('A')) + 1
+        colIndex = num
+        if self.isInitialized:
+            df = self.data
+            if (colIndex - 1) < len(list(df)):
+                colName = list(df)[colIndex - 1]
+                print(df.loc[rowIndex, colName])
+                return df.loc[rowIndex, colName]
             else:
                 return None
         else:
@@ -98,7 +124,7 @@ class StatsOp:
             self.data = pd.read_csv(fName)
             self.isInitialized = True
         else:
-            print("404 File:" + fName +" Not Found!!!!!!!!!")
+            print("404 File:" + fName +" Not Found")
         self.isInitialized = status
         return status
     
