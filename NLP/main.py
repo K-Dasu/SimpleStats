@@ -2,6 +2,7 @@ import synthesis as syn
 
 def main():
 
+    print("Initializing synthesizer")
     # initialize synthesizer
     s = syn.Synthesizer()
 

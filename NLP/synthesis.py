@@ -1,6 +1,7 @@
 from nltk import word_tokenize
 from nltk import tag
 from enum import Enum
+import re
 import sys
 import string
 
@@ -19,7 +20,12 @@ class Synthesizer:
     def __init__(self):
         self.stats = StatsOp()
         self.thesaurus = CmdThesaurus()
-        self.tagger = trainer.load_tagger('models/brown_all.pkl')
+        self.unitagger = trainer.load_tagger('models/brown_all_uni.pkl')
+        #self.bitagger = trainer.load_tagger('models/brown_all_bi.pkl')
+        #self.tritagger = trainer.load_tagger('models/brown_all_tri.pkl')
+
+        # for matching if something is a cell
+        self.cellReg = re.compile('[a-zA-Z]+[0-9]+')
 
         self.labels = {}
         self.labels['verb'] = 'VB'
@@ -39,7 +45,7 @@ class Synthesizer:
         return word_tokenize(cmd)
 
     def tag(self, tokens):
-        return self.tagger.tag(tokens)
+        return self.unitagger.tag(tokens)
 
     def synonym_look_up(self,word):
         #check if word is in synonynm
@@ -85,7 +91,7 @@ class Synthesizer:
                 return Open.OPEN_FAIL
         return Open.NOT_OPEN_CMD
     
-     def print_data_cmd(self, tokens):
+    def print_data_cmd(self, tokens):
         print ("attempting to print..")
         command = self.build_command(tokens)
         print(self.commandStack)
@@ -99,7 +105,7 @@ class Synthesizer:
             
 
     # parse a noun or none tag and see what it is
-    def determine_var(self, nn):
+    def check_var(self, nn):
         val = None
 
         # test if int
@@ -120,14 +126,11 @@ class Synthesizer:
         if val is None: # check if nn is even a column or row name
             return nn
 
-    # checks to see if arg is a name inside list, row or col
-    # returns True if it is
-    def check_name_in_list(self, arg, li):
-        if arg in li:
-            return True
-        else:
-            return False
-        
+    # checks if the cell passed in refers to a cell, i.e. A1, bc23
+    def check_cell(self, cell):
+        return self.cellReg.fullmatch(cell) is None
+
+    # build a command stack given list of tagged tokens
     def build_command(self, tokens):
         command = []
         previousNoun = False
@@ -152,6 +155,41 @@ class Synthesizer:
                 
         self.commandStack.append(command)
 
+    # build a command given a list of tagged tokens
+    # returns a pair representing a command
+    def build_command(self, tokens):
+
+        if tokens == []:
+            return ('', [])
+
+        pair = tokens[0]
+
+        print(pair)
+        # check column and rows for special terms
+        # handle ordinal number
+        # If it's a noun or none
+        if pair[1] is None or pair[1][0] == 'N' or pair[1] == 'CD':
+            return ('evaluate', [pair[0]])
+        # check if verb or special command type
+        elif pair[1][:2] == 'VB':
+            return (pair[0], self.build_args(tokens[1:],[]))
+        #else: # ignore this token
+        #    return self.build_command(tokens[1:])
+
+
+    # builds a list of arguments for a given command 
+    def build_args(self, tokens, args):
+
+        # out of tokens to construct arguments on
+        if tokens == []:
+            return args
+
+        p = self.build_command(tokens)
+        args.append(p)
+        return self.build_args(tokens[1:], args)
+
+
+
     def synthesize(self, tagged, cmd):
         stats = self.stats
         labels = self.labels
@@ -162,6 +200,13 @@ class Synthesizer:
 
         # If we come across any nouns or nones, we need to check if it's been initialized
         # build_command call here, read is a special command
+        print("building command: ")
+        c = self.build_command(tagged)
+        print(c)
+        return c
+
+
+        # Call the command -- based on the command call a list of stat ops
 
         # check if we've already initialized
         '''

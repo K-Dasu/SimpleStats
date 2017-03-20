@@ -7,9 +7,19 @@ import sys
 # Trains and saves a tagger model to a file
 # @filename name of file to save to
 # @train_set the tagged set to train on
-def train_and_save(filename, train_set):
+# @num 1 - unigram, 2 - bigram, 3 - trigram
+def train_and_save(filename, train_set, num):
     outfile = open(filename, 'wb')
-    t = nltk.UnigramTagger(train_set)
+    t = None
+    if num == 1: #train a backoff
+        t1 = nltk.UnigramTagger(train_set)
+        t = nltk.BigramTagger(train_set, backoff=t1)
+    elif num == 2:
+        t = nltk.BigramTagger(train_set)
+    elif num == 3:
+        t = nltk.TrigramTagger(train_set)
+    else:
+        return
     dump(t, outfile, -1)
     outfile.close()
 
@@ -23,8 +33,10 @@ def load_tagger(filename):
     return t
 
 # Uncomment to train - Trains over ntlk brown corpus
-#brown_train = nltk.corpus.brown.tagged_sents()
-#train_and_save('models/brown_all.pkl',brown_train)
+brown_train = nltk.corpus.brown.tagged_sents()
+train_and_save('models/brown_all_uni.pkl', brown_train, 1)
+#train_and_save('models/brown_all_bi.pkl', brown_train, 2)
+#train_and_save('models/brown_all_tri.pkl', brown_train, 3)
 
 # Loads tagger, loop will take in sentence and return list of tagged tokens
 

@@ -10,6 +10,7 @@ class CmdThesaurus:
         self.openSynonyms = []
         self.showSynonyms = []
         self.calculateSynonyms = []
+        self.setSynonyms = []
         # sums - total, sum, sigma
         # calculate, get
         # while, repeat
@@ -32,8 +33,17 @@ class CmdThesaurus:
         #build show/print synonyms
         self.calculateSynonyms = buildSynList(self.calculateSynonyms, "get", wn.VERB)
         self.calculateSynonyms = buildSynList(self.calculateSynonyms, "calculate", wn.VERB)
+        self.calculateSynonyms = buildSynList(self.calculateSynonyms, "see", wn.VERB)
+        self.calculateSynonyms = buildSynList(self.calculateSynonyms, "evaluate", wn.VERB)
         self.calculateSynonyms.append("what")   # in statistical NLP, has the same purpose as calculate
+        self.calculateSynonyms.append("eval")
         self.calculateSynonyms = list(set(self.calculateSynonyms))
+
+        #build set synonyms -- need to consider set where there is no verb
+        self.setSynonyms = buildSynList(self.setSynonyms, "set", wn.VERB)
+        self.setSynonyms = buildSynList(self.setSynonyms, "change", wn.VERB)
+        self.setSynonyms = buildSynList(self.setSynonyms, "modify", wn.VERB)
+        self.setSynonyms = list(set(self.setSynonyms))
 
         
     # returns true if word is a synonym of quit
