@@ -13,12 +13,37 @@ class StatsOp:
         
 #<--------------- Table Operations --------------->
     
-    #update value
-    def updateCell(self, col, row, value):
+    #update value passing in two labels Column = Header Row Name, Row = either name or index (0 - n)
+    def updateCellLabel(self, col, row, value):
         if self.isInitialized:
             df = self.data
             df.set_value(row, col, value)
             self.data = df
+        else:
+            return None
+    #Passing in Excell Format or updating (ex: update A4, 5)    
+    def updateCellExcell(self, cell, value):
+        row = ""
+        col = ""
+        for term in cell:
+            if term.isnumeric():
+                 row = row + term
+            else:
+                col = col + term
+        rowIndex = int(row) - 1
+        num = 0
+        for c in col:
+            if c in string.ascii_letters:
+                num = num * 26 + (ord(c.upper()) - ord('A')) + 1
+        colIndex = num
+        if self.isInitialized:
+            df = self.data
+            if (colIndex - 1) < len(list(df)):
+                colName = list(df)[colIndex - 1]
+                df.set_value(rowIndex, colName, value)
+                self.data = df
+            else:
+                return None
         else:
             return None
     
