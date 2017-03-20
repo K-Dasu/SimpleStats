@@ -149,7 +149,10 @@ class StatsOp:
     def printColumn(self,col):
         if self.isInitialized:
             df = self.data
-            print(df[col])
+            if(str(col).isnumeric()):
+                print(df.iloc[:,:col])
+            else:
+                print(df[col])
         else:
             print("No Data Available")
     
@@ -158,6 +161,7 @@ class StatsOp:
     def printRow(self,row):
         if self.isInitialized:
             df = self.data
+            print(row)
             print(df.iloc[[row]])
         else:
             print("No Data Available")
@@ -176,7 +180,25 @@ class StatsOp:
             return list(df.index)
         else:
             return None
-    
+        
+    def isAColumn(self, col, num):
+        df = self.data
+        if col in list(df):
+            return col
+        if num > 0 and num < len(list(df)):
+            return num
+        return False
+                    
+    def isARow(self,row, num):
+        df = self.data
+        if row in list(df.index):
+            return row
+        print(len(list(df.index)))
+        if num >= 0 and num < len(list(df.index)):
+            return num
+        return False
+        
+         
     
 #<--------------- Array Operations --------------->
 

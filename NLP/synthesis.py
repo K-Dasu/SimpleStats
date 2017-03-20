@@ -47,7 +47,31 @@ class Synthesizer:
         return word
     
     def print_requested (self, objs):
-        print("Printing Requested")
+        word = ""
+        number = -1
+        isColumn = False
+        isRow = False
+        for item in objs:
+            if word.lower() == "column":
+                isColumn = True
+            elif word.lower() == "row":
+                isRow = True
+        
+            if item.isnumeric():
+                number = int(item)
+                
+            if len(word) > 0:
+                word = word + " " + str(item)
+            else:
+                word = str(item)
+                
+        if isColumn:
+            corCol = self.stats.isAColumn(word, number)
+            self.stats.printColumn(corCol)
+        elif isRow:
+            print("processing row...: number is: " + str(number))
+            corRow = self.stats.isARow(word, number)
+            self.stats.printRow(corRow)
     
     # If it's an open cmd
     def read_data_cmd(self, tokens): 
@@ -61,12 +85,13 @@ class Synthesizer:
                 return Open.OPEN_FAIL
         return Open.NOT_OPEN_CMD
     
-    def print_data_cmd(self, tokens):
+     def print_data_cmd(self, tokens):
         print ("attempting to print..")
         command = self.build_command(tokens)
         print(self.commandStack)
-        if self.thesaurus.isShowSynonym(tokens[0][0]): # handles cases of printing or showing data
+        if tokens[0][0].lower() == 'show': # handles cases of printing or showing data
             [self.print_requested(n) for n in self.commandStack]
+            self.commandStack = []
             
     def run_data_cmd(self, tokens):
         if tokens[0][0].lower() == 'command': # handles cases statistic commands on data
