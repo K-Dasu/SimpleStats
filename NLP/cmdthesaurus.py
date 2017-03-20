@@ -32,24 +32,25 @@ class CmdThesaurus:
         #build show/print synonyms
         self.calculateSynonyms = buildSynList(self.calculateSynonyms, "get", wn.VERB)
         self.calculateSynonyms = buildSynList(self.calculateSynonyms, "calculate", wn.VERB)
+        self.calculateSynonyms.append("what")   # in statistical NLP, has the same purpose as calculate
         self.calculateSynonyms = list(set(self.calculateSynonyms))
 
         
     # returns true if word is a synonym of quit
     def isQuitSynonym(self, word):
-        return (word in self.quitSynonyms)
+        return (word.lower() in self.quitSynonyms)
 
     # returns true if word is a synonym of open
     def isOpenSynonym(self, word):
-        return (word in self.openSynonyms)
+        return (word.lower() in self.openSynonyms)
 
     # returns true if word is a synonym of show
-    def isOpenSynonym(self, word):
-        return (word in self.showSynonyms)
+    def isShowSynonym(self, word):
+        return (word.lower() in self.showSynonyms)
 
     # returns true if word is a synonym of calculate
     def isCalculateSynonym(self, word):
-        return (word in self.calculateSynonyms)
+        return (word.lower() in self.calculateSynonyms)
 
 # adds synonyms of words to a list
 # li - the list to add to -- will return this
