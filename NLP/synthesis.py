@@ -7,6 +7,7 @@ import trainer
 sys.path.insert(0, '../Statistics')
 from statsop import StatsOp
 
+
 class Synthesizer:
 
     def __init__(self):
@@ -22,6 +23,8 @@ class Synthesizer:
         self.specialNouns.append('row')
         self.specialNouns.append('col')
         self.specialNouns.append('column')
+        
+        self.commandStack = []
 
     def tokenize(self, cmd):
         return word_tokenize(cmd)
@@ -29,22 +32,28 @@ class Synthesizer:
     def tag(self, tokens):
         return self.tagger.tag(tokens)
 
-    def synonymLookUp(self,word):
+    def synonym_look_up(self,word):
         #check if word is in synonynm
         #return the appropriatly mapped word
         return word
     
+    def print_requested (self, objs):
+        print("Printing Requested")
+    
+        
     # attempt to initialize stats
     def read_data_cmd(self, tokens): 
         if tokens[0][0].lower() == 'read': #handles case of reading in data
             # next argument must be filename, attempt to set up the data
             if len(tokens) == 2:
                 return self.stats.setData(tokens[1][0])
-                          
+    
     def print_data_cmd(self, tokens):
         print ("attempting to print..")
+        command = self.build_command(tokens)
+        print(self.commandStack)
         if tokens[0][0].lower() == 'show': # handles cases of printing or showing data
-            print("printing out requested data")
+            [print_requested(n) for n in self.commandStack]
             
     def run_data_cmd(self, tokens):
         if tokens[0][0].lower() == 'command': # handles cases statistic commands on data
@@ -78,7 +87,31 @@ class Synthesizer:
             return True
         else:
             return False
+        
+    def build_command(self, tokens):
+        command = []
+        previousNoun = False
+        for pair in tokens:
+            if(pair[1] == "VB"): #action to perform
+                command.append(pair[0])
+                self.commandStack.append(command)
+                command = []
+                
+            if(pair[1] == "CD" and previousNoun): #cardinal number (or location) after a given noun
+                command.append(pair[0])
 
+            if(pair[1][0] == "N"): #noun
+                command.append(pair[0])
+                previousNoun = True
+            else:
+                previousNoun = False
+            
+            if(pair[1] == "CC"):
+                self.commandStack.append(command)
+                command = []
+                
+        self.commandStack.append(command)
+    
     def synthesize(self, tagged, cmd):
         stats = self.stats
         labels = self.labels
@@ -105,9 +138,7 @@ class Synthesizer:
                 self.read_data_cmd(tagged)
             else:
                 print("Trying a non read command")
-                
-                command = self.synonymLookUp(tagged[0][0].lower())
-                print(command)
+                command = self.synonym_look_up(tagged[0][0].lower())
                 if command == "show":
                     self.print_data_cmd(tagged)
                 pass # test printing column/row commands here?
@@ -119,19 +150,3 @@ class Synthesizer:
                 pass
             else:
                 pass
-
-
-# initialize synthesizer
-s = Synthesizer()
-
-# Read commands
-while(1):
-    print('Enter command:')
-    cmd = input()
-    tokens = s.tokenize(cmd)
-    tagged = s.tag(tokens)
-
-    print(tagged)
-    s.synthesize(tagged, cmd)
-    if(cmd == "quit"):
-        break
