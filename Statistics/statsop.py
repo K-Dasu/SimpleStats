@@ -180,6 +180,37 @@ class StatsOp:
             return result
         else:
             return None
+        
+    def calculateMin(self, df):
+        value = df.min()
+        return value.values[0]
+    
+    def calculateMax(self, df):
+        value = df.max()
+        return value.values[0]
+    
+    def calculateMean(self, df):
+        value = df.mean()
+        return value.values[0]
+    
+    def calculateMode(self, df):
+        value = df.mode()
+        if len(value.mode()) == 0:
+            return "No repeats"
+        return value
+    
+    def calculateMedian(self, df):
+        value = df.median()
+        return value.values[0]
+    
+    def calculateStandardDeviation(self,df):
+        value = df.std()
+        return value.values[0]
+    
+    def calculateVariance(self,df):
+        value = df.var()
+        return value.values[0]
+    
     
      #returns an array of the mean for each row
     def calculateRowsMean(self):
