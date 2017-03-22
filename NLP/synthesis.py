@@ -23,6 +23,26 @@ class SpecialPred(Enum):
     APPLY_PRED = 3
     COMMA_PRED = 4
     AND_PRED = 5
+    
+class Node:
+    def __init__(self):
+        self.children = []
+        self.data = ""
+    
+    def getChildren(self):
+        return self.children
+    
+    def addChild(self, child):
+        self.children.append(child)
+    
+    def getData(self):
+        return self.data
+    
+    def setData(self, value):
+        self.data = value
+    
+    def printData(self):
+        print(self.data)
 
 class Synthesizer:
 
