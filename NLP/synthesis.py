@@ -182,22 +182,23 @@ class Synthesizer:
                 
         self.commandStack.append(command)
     '''
-
     def populateTree(self, node, taggedData):
         if len(taggedData) == 0: return node
         # print("Verb? " + taggedData[0][0])
-        while taggedData[0][1] != "VB":
+        tag = taggedData[0][1]
+        while tag is None or tag[0:2] != "VB":
             newNode = Node()
-            #print("Adding Child: " + taggedData[0][0])
-            tag = taggedData[0][1]
-            if tag is None or tag[0] == 'N' or  tag == "CD":
+            if tag is None or tag[0] == 'N' or  tag[0:2] == "CD":
+#                 print("Adding Child: " + taggedData[0][0] )
                 newNode.setData(taggedData[0][0])
                 node.addChild(newNode)
             taggedData.pop(0)
             if len(taggedData) == 0 : return node
+            tag = taggedData[0][1]
 
-        if taggedData[0][1] == "VB":
-            #print("Adding Verb and its children: " + taggedData[0][0])
+
+        if tag is not None and tag[0:2] == "VB":
+#             print("Adding Verb and its children: " + taggedData[0][0])
             newNode = Node()
             newNode.setData(taggedData[0][0])
             taggedData.pop(0)
@@ -210,22 +211,38 @@ class Synthesizer:
             return (node.getData() ,mylist)
         childLen = len(node.getChildren())
         children = node.getChildren()
-        i = 0
-        while i < childLen:
-            if len(children[i].getChildren()) > 0:
-                mylist.append(self.printTree(children[i],i + 1,[]))
+        index = 0
+        while index < childLen:
+            if len(children[index].getChildren()) > 0:
+                mylist.append(self.printTree(children[index],i + 1,[]))
             else:
-                evals = ("evaluate",children[i].getData())
+                #check if the sequence is column the # 
+                evals = None
+                if self.thesaurus.isColrow(children[index].getData()) and (index + 1 < childLen):
+                    columnList = []
+                    columnList.append(children[index].getData())
+                    columnList.append(children[index + 1].getData())
+                    evals = ("evaluate", columnList)
+                    index = index + 1  
+                else:    
+                    evals = ("evaluate",children[index].getData())
                 mylist.append(evals)
-            i = i + 1    
+            index = index + 1    
 
         return (node.getData() ,mylist)
 
     def generateCommand(self, tagged):
         tree = Node()
         popTree = self.populateTree(tree,tagged)
-        actualTree = popTree.getChildren()[0]
-        obj = self.printTree(actualTree, 0,[])
+        print("Tree root data: " + popTree.getData() )
+        obj = None
+        if len(popTree.getChildren()) > 1:
+            popTree.setData("evaluate")
+            obj = self.printTree(popTree, 0,[])
+        else:
+            actualTree = popTree.getChildren()[0]
+            obj = self.printTree(actualTree, 0,[])
+       
         return obj
 
 
