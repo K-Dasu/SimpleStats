@@ -32,7 +32,7 @@ class StatsOp:
                  row = row + term
             else:
                 col = col + term
-        rowIndex = int(row) - 1
+        rowIndex = int(row)
         num = 0
         for c in col:
             if c in string.ascii_letters:
@@ -57,7 +57,7 @@ class StatsOp:
                  row = row + term
             else:
                 col = col + term
-        rowIndex = int(row) - 1
+        rowIndex = int(row)
         num = 0
         for c in col:
             if c in string.ascii_letters:

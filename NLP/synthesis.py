@@ -235,7 +235,7 @@ class Synthesizer:
 
         # set command
         elif self.thesaurus.isSetSynonym(cmd[0]):
-            pass
+            return self.set_command(cmd[1])
 
 
 
@@ -249,14 +249,10 @@ class Synthesizer:
 
         arg = args[0]
 
-        print('evaluating the pair: ' + str(arg))
-
         # if this is even a pair, we need to keep parsing
         if isinstance(arg, tuple):
-            print('was tuple')
             return self.execute_command(arg)
         elif isinstance(arg, str):
-            print('was string')
             # check if this is a column or row 'column __'
             if self.thesaurus.isColrow(arg):
                 # if row/col number or name
@@ -277,7 +273,6 @@ class Synthesizer:
 
             # check if this is a cell
             if self.check_cell(arg):
-                print('was cell')
                 if self.stats.checkInitialized():
                     return self.stats.getCellExcell(arg)
                 else:
@@ -300,12 +295,12 @@ class Synthesizer:
 
 
         else:
-            print('something went wrong in a calculate command: invalid arg')
+            print('Something went wrong in a calculate command: invalid arg')
 
     def show_command(self, args):
         # something went wrong
         if len(args) == 0:
-            print('something went wrong in a show command: no args')
+            print('Something went wrong in a show command: no args')
             return
 
         arg = args[0]
@@ -321,11 +316,34 @@ class Synthesizer:
 
     def set_command(self, args):
         # something went wrong
-        if len(args) == 0:
-            print('something went wrong in a set command: no args')
+        if len(args) < 2:
+            print('Something went wrong in a set command: set needs at least 2 arguments')
             return
 
-        arg = args[0]
+        des = args[0]   # the destination of what we're setting
+        src = args[1]   # the source of what we're setting
+
+        if isinstance(des, tuple) and isinstance(src,tuple):
+            if des[0] == 'evaluate':
+
+                # evaluate the src value
+                res = self.execute_command(src)
+                if res is None:
+                    print('Something went wrong when trying to calculate the value to set')
+                    return
+
+                cell = des[1][0]
+                if self.check_cell(cell):
+                    if self.stats.checkInitialized():
+                        self.stats.updateCellExcell(cell, res)
+                        return res    
+                    else:
+                        print('file hasn\'t been loaded so I don\'t know about ' + str(des[1][0]))
+
+            else:
+                print("Something went wrong in trying to set a value to " + str(des[1]))
+        else:
+            print("Something went wrong in set command: invalid arg")
 
     def synthesize(self, tagged, cmd):
         stats = self.stats
