@@ -158,7 +158,8 @@ class Synthesizer:
         if len(taggedData) == 0: return node
         # print("Verb? " + taggedData[0][0])
         tag = taggedData[0][1]
-        while tag is None or tag[0:2] != "VB":
+
+        while tag is None or (tag[0:2] != "VB" and not self.thesaurus.isStatOp(taggedData[0][0])) :
             newNode = Node()
             if tag is None or tag[0] == 'N' or  tag[0:2] == "CD":
 #                 print("Adding Child: " + taggedData[0][0] )
@@ -169,13 +170,14 @@ class Synthesizer:
             tag = taggedData[0][1]
 
 
-        if tag is not None and tag[0:2] == "VB":
+        if tag is not None and (tag[0:2] == "VB" or self.thesaurus.isStatOp(taggedData[0][0])):
 #             print("Adding Verb and its children: " + taggedData[0][0])
             newNode = Node()
             newNode.setData(taggedData[0][0])
             taggedData.pop(0)
             node.addChild(self.populateTree(newNode, taggedData))
             return node
+
 
     def printTree(self, node, i, mylist):
         if len(node.getChildren()) == 0:
@@ -194,12 +196,14 @@ class Synthesizer:
             else:
                 #check if the sequence is column the # 
                 evals = None
-                if self.thesaurus.isColrow(children[index].getData()) and (index + 1 < childLen):
+                if self.thesaurus.isColrow(children[index].getData()):
                     columnList = []
                     columnList.append(children[index].getData())
-                    columnList.append(children[index + 1].getData())
+                    index = index + 1 
+                    while index < childLen and len(children[index].getChildren()) == 0:
+                        columnList.append(children[index].getData())
+                        index = index + 1 
                     evals = ("evaluate", columnList)
-                    index = index + 1  
                 else:    
                     evals = ("evaluate",children[index].getData())
                 mylist.append(evals)
