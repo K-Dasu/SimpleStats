@@ -334,7 +334,7 @@ class Synthesizer:
                     print('I don\'t have anything to show you -- no data yet')
                     return res
 
-            print('result for show was:\n ' + str(res))
+            print('result for show was:\n ')
             return res
         else:
             print(str(arg))
@@ -387,6 +387,5 @@ class Synthesizer:
             print('Command tree is ' + str(c))
         res = self.execute_command(c)
 
-        if self.debug:
-            print(res)
+        print(str(res))
         return res

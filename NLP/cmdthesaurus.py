@@ -82,6 +82,9 @@ class CmdThesaurus:
 
         self.arithOps = self.addSynonyms + self.subSynonyms + self.multSynonyms + self.divSynonyms
 
+    def isStatOp(self, word):
+        return (word.lower() in self.statops)   
+
     def isSpreadsheet(self, word):
         return (word.lower() in self.spreadsheetWords)
 
