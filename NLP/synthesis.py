@@ -163,50 +163,50 @@ class Synthesizer:
         self.commandStack.append(command)
     '''
 
-       def populateTree(self, node, taggedData):
-            if len(taggedData) == 0: return node
-            # print("Verb? " + taggedData[0][0])
-            while taggedData[0][1] != "VB":
-                newNode = Node()
-                #print("Adding Child: " + taggedData[0][0])
-                tag = taggedData[0][1]
-                if tag is None or tag[0] == 'N' or  tag == "CD":
-                    newNode.setData(taggedData[0][0])
-                    node.addChild(newNode)
-                taggedData.pop(0)
-                if len(taggedData) == 0 : return node
-
-            if taggedData[0][1] == "VB":
-                #print("Adding Verb and its children: " + taggedData[0][0])
-                newNode = Node()
+    def populateTree(self, node, taggedData):
+        if len(taggedData) == 0: return node
+        # print("Verb? " + taggedData[0][0])
+        while taggedData[0][1] != "VB":
+            newNode = Node()
+            #print("Adding Child: " + taggedData[0][0])
+            tag = taggedData[0][1]
+            if tag is None or tag[0] == 'N' or  tag == "CD":
                 newNode.setData(taggedData[0][0])
-                taggedData.pop(0)
-                node.addChild(self.populateTree(newNode, taggedData))
-                return node
+                node.addChild(newNode)
+            taggedData.pop(0)
+            if len(taggedData) == 0 : return node
+
+        if taggedData[0][1] == "VB":
+            #print("Adding Verb and its children: " + taggedData[0][0])
+            newNode = Node()
+            newNode.setData(taggedData[0][0])
+            taggedData.pop(0)
+            node.addChild(self.populateTree(newNode, taggedData))
+            return node
 
 
-        def printTree(self, node, i, mylist):
-            if len(node.getChildren()) == 0:
-                return (node.getData() ,mylist)
-            childLen = len(node.getChildren())
-            children = node.getChildren()
-            i = 0
-            while i < childLen:
-                if len(children[i].getChildren()) > 0:
-                    mylist.append(self.printTree(children[i],i + 1,[]))
-                else:
-                    evals = ("evaluate",children[i].getData())
-                    mylist.append(evals)
-                i = i + 1    
-
+    def printTree(self, node, i, mylist):
+        if len(node.getChildren()) == 0:
             return (node.getData() ,mylist)
+        childLen = len(node.getChildren())
+        children = node.getChildren()
+        i = 0
+        while i < childLen:
+            if len(children[i].getChildren()) > 0:
+                mylist.append(self.printTree(children[i],i + 1,[]))
+            else:
+                evals = ("evaluate",children[i].getData())
+                mylist.append(evals)
+            i = i + 1    
 
-        def generateCommand(self, tagged):
-            tree = Node()
-            popTree = self.populateTree(tree,tagged)
-            actualTree = popTree.getChildren()[0]
-            obj = self.printTree(actualTree, 0,[])
-            return obj
+        return (node.getData() ,mylist)
+
+    def generateCommand(self, tagged):
+        tree = Node()
+        popTree = self.populateTree(tree,tagged)
+        actualTree = popTree.getChildren()[0]
+        obj = self.printTree(actualTree, 0,[])
+        return obj
 
 
     # where cmd is a pair ('cmd name', [list of args])
