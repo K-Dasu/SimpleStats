@@ -202,7 +202,10 @@ class StatsOp:
         if self.isInitialized:
             df = self.data
             if(str(col).isnumeric()):
-                print(df.iloc[:,:col])
+                if col > 0:
+                    print (df.iloc[:,(col - 1):col])
+                else:
+                    print(df.iloc[:,0:0])
             else:
                 print(df[col])
         else:
@@ -237,7 +240,10 @@ class StatsOp:
         if self.isInitialized:
             df = self.data
             if(str(col).isnumeric()):
-                return (df.iloc[:,:col])
+                if col > 0:
+                    return (df.iloc[:,(col - 1):col])
+                else:
+                    return(df.iloc[:,0:0])
             else:
                 return (df[col])
         else:
