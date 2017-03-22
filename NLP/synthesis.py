@@ -7,6 +7,7 @@ import string
 
 import trainer
 sys.path.insert(0, 'Statistics')
+#sys.path.insert(0, '../Statistics')
 from statsop import StatsOp
 from cmdthesaurus import CmdThesaurus
 
@@ -46,20 +47,16 @@ class Node:
 
 class Synthesizer:
 
-    def __init__(self):
+    def __init__(self, debug=False):
+        self.debug = debug
+
         self.stats = StatsOp()
         self.thesaurus = CmdThesaurus()
         self.unitagger = trainer.load_tagger('NLP/models/brown_all_uni.pkl')
-        #self.bitagger = trainer.load_tagger('models/brown_all_bi.pkl')
-        #self.tritagger = trainer.load_tagger('models/brown_all_tri.pkl')
+        #self.unitagger = trainer.load_tagger('models/brown_all_uni.pkl')
 
         # for matching if something is a cell
         self.cellReg = re.compile('[a-zA-Z]+[0-9]+')
-
-        self.labels = {}
-        self.labels['verb'] = 'VB'
-        self.labels['noun'] = 'NN'
-        self.labels['nouns'] = 'NNS'
 
         self.applyOps = ['by', 'to', 'from']
         
@@ -329,7 +326,15 @@ class Synthesizer:
         # if this is even a pair, we need to keep parsing
         if isinstance(arg, tuple):
             res = self.execute_command(arg)
-            print(str(res))
+
+            if str(res).lower() == 'everything':
+                if self.stats.checkInitialized():
+                    res = self.stats.getData()
+                else:
+                    print('I don\'t have anything to show you -- no data yet')
+                    return res
+
+            print('result for show was:\n ' + str(res))
             return res
         else:
             print(str(arg))
@@ -369,7 +374,6 @@ class Synthesizer:
 
     def synthesize(self, tagged, cmd):
         stats = self.stats
-        labels = self.labels
 
         # Check if the command is an open command
         if self.read_data_cmd(tagged) != Open.NOT_OPEN_CMD:
@@ -378,7 +382,11 @@ class Synthesizer:
         # If we come across any nouns or nones, we need to check if it's been initialized
         # build_command call here, read is a special command
         c = self.generateCommand(tagged)
-        print('c is ' + str(c))
+
+        if self.debug:
+            print('Command tree is ' + str(c))
         res = self.execute_command(c)
-        print(res)
+
+        if self.debug:
+            print(res)
         return res
