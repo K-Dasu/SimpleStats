@@ -27,8 +27,8 @@ class CmdThesaurus:
         self.spreadsheetWords = ['all_data', 'spreadsheet']
 
         # statops
-        self.statops = ['mode', 'median' 'mean', 'average', 
-                        'deviation', 'min', 'minimum' 'max', 'maximum']
+        self.statops = ['mode', 'median', 'mean', 'average', 
+                        'deviation', 'min', 'minimum', 'max', 'maximum']
 
         # build quit synonyms
         self.quitSynonyms = buildSynList(self.quitSynonyms, "exit", wn.VERB)
