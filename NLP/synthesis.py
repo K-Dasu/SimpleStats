@@ -163,60 +163,51 @@ class Synthesizer:
         self.commandStack.append(command)
     '''
 
-    # build a command given a list of tagged tokens
-    # returns a pair representing a command
-    def build_command(self, tokens):
+       def populateTree(self, node, taggedData):
+            if len(taggedData) == 0: return node
+            # print("Verb? " + taggedData[0][0])
+            while taggedData[0][1] != "VB":
+                newNode = Node()
+                #print("Adding Child: " + taggedData[0][0])
+                tag = taggedData[0][1]
+                if tag is None or tag[0] == 'N' or  tag == "CD":
+                    newNode.setData(taggedData[0][0])
+                    node.addChild(newNode)
+                taggedData.pop(0)
+                if len(taggedData) == 0 : return node
 
-        if tokens == []:
-            return ('', [])
+            if taggedData[0][1] == "VB":
+                #print("Adding Verb and its children: " + taggedData[0][0])
+                newNode = Node()
+                newNode.setData(taggedData[0][0])
+                taggedData.pop(0)
+                node.addChild(self.populateTree(newNode, taggedData))
+                return node
 
-        pair = tokens[0]
 
-        print(pair)
-
-        # check column and rows for special terms
-        # handle ordinal number
-        if self.thesaurus.isColrow(pair[0]):
-
-            # check if column/row followed by a number
-            if len(tokens) >= 2:
-                val = None
-                try:
-                    val = int(tokens[1][0])
-                except ValueError:
-                    pass
-
-                if val is None:
-                    return None
+        def printTree(self, node, i, mylist):
+            if len(node.getChildren()) == 0:
+                return (node.getData() ,mylist)
+            childLen = len(node.getChildren())
+            children = node.getChildren()
+            i = 0
+            while i < childLen:
+                if len(children[i].getChildren()) > 0:
+                    mylist.append(self.printTree(children[i],i + 1,[]))
                 else:
-                    return ('evaluate', [pair[0], tokens[1][0]])
+                    evals = ("evaluate",children[i].getData())
+                    mylist.append(evals)
+                i = i + 1    
 
-        # If it's a noun or none
-        elif pair[1] is None or pair[1][0] == 'N' or pair[1] == 'CD':
-            return ('evaluate', [pair[0]])
-        # check if verb or special command type
-        #elif pair[1] == 'CC' or pair[1] == ',':
-        #    return (pair[0], [])
-        #elif pair[0] in self.applyOps:
-        #    return 
-        elif pair[1][:2] == 'VB':
-            return (pair[0], self.build_args(tokens[1:],[]))
-        #else: # ignore this token
-        #    return self.build_command(tokens[1:])
+            return (node.getData() ,mylist)
 
-    # builds a list of arguments for a given command 
-    def build_args(self, tokens, args):
+        def generateCommand(self, tagged):
+            tree = Node()
+            popTree = self.populateTree(tree,tagged)
+            actualTree = popTree.getChildren()[0]
+            obj = self.printTree(actualTree, 0,[])
+            return obj
 
-        # out of tokens to construct arguments on
-        if tokens == []:
-            return args
-
-        p = self.build_command(tokens)
-        if p is not None:
-            args.append(p)
-            return self.build_args(tokens[1:], args)
-        else:
-            return self.build_args(tokens[1:], args)
 
     # where cmd is a pair ('cmd name', [list of args])
     def execute_command(self, cmd):
@@ -338,7 +329,7 @@ class Synthesizer:
         # If we come across any nouns or nones, we need to check if it's been initialized
         # build_command call here, read is a special command
         print("building command: ")
-        c = self.build_command(tagged)
+        c = self.generateCommand(tagged)
         print('c is ' + str(c))
         res = self.execute_command(c)
         print(res)
