@@ -182,6 +182,7 @@ class Synthesizer:
                 
         self.commandStack.append(command)
     '''
+#----------------------------------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     def populateTree(self, node, taggedData):
         if len(taggedData) == 0: return node
         # print("Verb? " + taggedData[0][0])
@@ -208,7 +209,12 @@ class Synthesizer:
 
     def printTree(self, node, i, mylist):
         if len(node.getChildren()) == 0:
-            return (node.getData() ,mylist)
+            if len(mylist) > 0:
+                return (node.getData() ,mylist)
+            else:
+                mylist.append(node.getData())
+                return ("evaluate", mylist)
+            
         childLen = len(node.getChildren())
         children = node.getChildren()
         index = 0
@@ -229,12 +235,15 @@ class Synthesizer:
                 mylist.append(evals)
             index = index + 1    
 
-        return (node.getData() ,mylist)
+        if len(mylist) > 0:
+            return (node.getData() ,mylist)
+        else:
+            mylist.append(node.getData())
+            return ("evaluate", mylist)
 
     def generateCommand(self, tagged):
         tree = Node()
         popTree = self.populateTree(tree,tagged)
-        print("Tree root data: " + popTree.getData() )
         obj = None
         if len(popTree.getChildren()) > 1:
             popTree.setData("evaluate")
@@ -275,10 +284,7 @@ class Synthesizer:
             print('something went wrong in a calculate command: no args')
             return
 
-        if isinstance(args, list):
-            arg = args[0]
-        else:
-            arg = args
+        arg = args[0]
 
         # if this is even a pair, we need to keep parsing
         if isinstance(arg, tuple):
@@ -334,10 +340,7 @@ class Synthesizer:
             print('Something went wrong in a show command: no args')
             return
 
-        if isinstance(args, list):
-            arg = args[0]
-        else:
-            arg = args
+        arg = args[0]
 
         # if this is even a pair, we need to keep parsing
         if isinstance(arg, tuple):
