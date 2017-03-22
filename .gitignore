@@ -12,3 +12,5 @@ NLP/.ipynb_checkpoints/nlp-checkpoint.ipynb
 NLP/dummydata.csv
 
 Statistics/__pycache__/statsop.cpython-35.pyc
+
+*.pyc
