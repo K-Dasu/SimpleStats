@@ -11,6 +11,11 @@ class CmdThesaurus:
         self.showSynonyms = []
         self.calculateSynonyms = []
         self.setSynonyms = []
+        self.addSynonyms = []
+        self.subSynonyms = []
+        self.multSynonyms = []
+        self.divSynonyms = []
+        self.arithOps = []
         # sums - total, sum, sigma
         # calculate, get
         # while, repeat
@@ -20,6 +25,10 @@ class CmdThesaurus:
         self.columns = ['column', 'columns', 'col', 'cols']
         self.rows = ['row', 'rows']
         self.spreadsheetWords = ['all_data', 'spreadsheet']
+
+        # statops
+        self.statops = ['mode', 'median' 'mean', 'average', 
+                        'deviation', 'min', 'minimum' 'max', 'maximum']
 
         # build quit synonyms
         self.quitSynonyms = buildSynList(self.quitSynonyms, "exit", wn.VERB)
@@ -53,9 +62,25 @@ class CmdThesaurus:
         self.setSynonyms = list(set(self.setSynonyms))
 
         # add synonyms
-        self.addSynonyms = buildSynList(self.setSynonyms, 'add', wn.VERB)
+        self.addSynonyms = buildSynList(self.addSynonyms, 'add', wn.VERB)
         self.addSynonyms.append('increase')
         self.addSynonyms = list(set(self.addSynonyms))
+
+        # subtract synonyms
+        self.subSynonyms = buildSynList(self.subSynonyms, 'subtract', wn.VERB)
+        self.subSynonyms.append('decrease')
+        self.subSynonyms = list(set(self.subSynonyms))
+
+        # multiply synonyms
+        self.multSynonyms = buildSynList(self.multSynonyms, 'multiply', wn.VERB)
+        self.multSynonyms = list(set(self.multSynonyms))
+
+        # divide synonyms
+        self.divSynonyms = buildSynList(self.divSynonyms, 'divide', wn.VERB)
+        self.divSynonyms.append('divided')
+        self.divSynonyms = list(set(self.divSynonyms))
+
+        self.arithOps = self.addSynonyms + self.subSynonyms + self.multSynonyms + self.divSynonyms
 
     def isSpreadsheet(self, word):
         return (word.lower() in self.spreadsheetWords)
