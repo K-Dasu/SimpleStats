@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import string
 import os.path
 import fnmatch
 
@@ -229,6 +230,24 @@ class StatsOp:
         if self.isInitialized:
             df = self.data
             return list(df.index)
+        else:
+            return None
+
+    def getColumn(self,col):
+        if self.isInitialized:
+            df = self.data
+            if(str(col).isnumeric()):
+                return (df.iloc[:,:col])
+            else:
+                return (df[col])
+        else:
+            return None
+    
+    #print row
+    def getRow(self,row):
+        if self.isInitialized:
+            df = self.data
+            return df.iloc[[row]]
         else:
             return None
         

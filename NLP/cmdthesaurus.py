@@ -15,6 +15,11 @@ class CmdThesaurus:
         # calculate, get
         # while, repeat
 
+        # nouns
+        self.colrows = ['column', 'columns', 'col', 'cols', 'row', 'rows']
+        self.columns = ['column', 'columns', 'col', 'cols']
+        self.rows = ['row', 'rows']
+
         # build quit synonyms
         self.quitSynonyms = buildSynList(self.quitSynonyms, "exit", wn.VERB)
         self.quitSynonyms = buildSynList(self.quitSynonyms, "quit", wn.VERB)
@@ -24,6 +29,7 @@ class CmdThesaurus:
         self.openSynonyms = buildSynList(self.openSynonyms, "read", wn.VERB)
         self.openSynonyms = buildSynList(self.openSynonyms, "open", wn.VERB)
         self.openSynonyms = list(set(self.openSynonyms))
+        self.openSynonyms.remove('show')
 
         #build show/print synonyms
         self.showSynonyms = buildSynList(self.showSynonyms, "show", wn.VERB)
@@ -45,7 +51,9 @@ class CmdThesaurus:
         self.setSynonyms = buildSynList(self.setSynonyms, "modify", wn.VERB)
         self.setSynonyms = list(set(self.setSynonyms))
 
-        
+    def isColrow(self, word):
+        return (word.lower() in self.colrows)
+
     # returns true if word is a synonym of quit
     def isQuitSynonym(self, word):
         return (word.lower() in self.quitSynonyms)
@@ -61,6 +69,10 @@ class CmdThesaurus:
     # returns true if word is a synonym of calculate
     def isCalculateSynonym(self, word):
         return (word.lower() in self.calculateSynonyms)
+
+    # returns true if word is a synonym of set
+    def isSetSynonym(self, word):
+        return (word.lower() in self.setSynonyms)
 
 # adds synonyms of words to a list
 # li - the list to add to -- will return this

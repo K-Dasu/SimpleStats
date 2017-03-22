@@ -15,6 +15,15 @@ class Open(Enum):
     OPEN_FAIL = 1
     OPEN_SUCCESS = 2
 
+# special predecessor when parsing
+class SpecialPred(Enum):
+    COLUMN_SPEC = 0
+    ROW_SPEC = 1 
+    ORDINAL_NUMBER = 2
+    APPLY_PRED = 3
+    COMMA_PRED = 4
+    AND_PRED = 5
+
 class Synthesizer:
 
     def __init__(self):
@@ -32,11 +41,7 @@ class Synthesizer:
         self.labels['noun'] = 'NN'
         self.labels['nouns'] = 'NNS'
 
-        self.specialNouns = []
-        self.specialNouns.append('data')
-        self.specialNouns.append('row')
-        self.specialNouns.append('col')
-        self.specialNouns.append('column')
+        self.applyOps = ['by', 'to', 'from']
         
         self.variables = [] # list of variables that we know
         self.commandStack = []
@@ -87,6 +92,7 @@ class Synthesizer:
                 print(tokens[-1][0] + ' has been successfully opened')
                 return Open.OPEN_SUCCESS
             else:
+
                 print('We couldn\'t find your file: ' + tokens[-1][0])
                 return Open.OPEN_FAIL
         return Open.NOT_OPEN_CMD
@@ -105,7 +111,7 @@ class Synthesizer:
             
 
     # parse a noun or none tag and see what it is
-    def check_var(self, nn):
+    def check_var_or_const(self, nn):
         val = None
 
         # test if int
@@ -128,9 +134,10 @@ class Synthesizer:
 
     # checks if the cell passed in refers to a cell, i.e. A1, bc23
     def check_cell(self, cell):
-        return self.cellReg.fullmatch(cell) is None
+        return self.cellReg.fullmatch(cell) != None
 
     # build a command stack given list of tagged tokens
+    '''
     def build_command(self, tokens):
         command = []
         previousNoun = False
@@ -154,6 +161,7 @@ class Synthesizer:
                 command = []
                 
         self.commandStack.append(command)
+    '''
 
     # build a command given a list of tagged tokens
     # returns a pair representing a command
@@ -165,17 +173,36 @@ class Synthesizer:
         pair = tokens[0]
 
         print(pair)
+
         # check column and rows for special terms
         # handle ordinal number
+        if self.thesaurus.isColrow(pair[0]):
+
+            # check if column/row followed by a number
+            if len(tokens) >= 2:
+                val = None
+                try:
+                    val = int(tokens[1][0])
+                except ValueError:
+                    pass
+
+                if val is None:
+                    return None
+                else:
+                    return ('evaluate', [pair[0], tokens[1][0]])
+
         # If it's a noun or none
-        if pair[1] is None or pair[1][0] == 'N' or pair[1] == 'CD':
+        elif pair[1] is None or pair[1][0] == 'N' or pair[1] == 'CD':
             return ('evaluate', [pair[0]])
         # check if verb or special command type
+        #elif pair[1] == 'CC' or pair[1] == ',':
+        #    return (pair[0], [])
+        #elif pair[0] in self.applyOps:
+        #    return 
         elif pair[1][:2] == 'VB':
             return (pair[0], self.build_args(tokens[1:],[]))
         #else: # ignore this token
         #    return self.build_command(tokens[1:])
-
 
     # builds a list of arguments for a given command 
     def build_args(self, tokens, args):
@@ -185,10 +212,120 @@ class Synthesizer:
             return args
 
         p = self.build_command(tokens)
-        args.append(p)
-        return self.build_args(tokens[1:], args)
+        if p is not None:
+            args.append(p)
+            return self.build_args(tokens[1:], args)
+        else:
+            return self.build_args(tokens[1:], args)
+
+    # where cmd is a pair ('cmd name', [list of args])
+    def execute_command(self, cmd):
+
+        if cmd[0] is None:
+            print("Something went wrong...")
+            return
+
+        # calculate command
+        if self.thesaurus.isCalculateSynonym(cmd[0]):
+            return self.calculate_command(cmd[1])
+
+        # show command
+        elif self.thesaurus.isShowSynonym(cmd[0]):
+            return self.show_command(cmd[1])
+
+        # set command
+        elif self.thesaurus.isSetSynonym(cmd[0]):
+            pass
 
 
+
+    # calculate only cares about the first argument, unless it's 
+    # a special var like column 2
+    def calculate_command(self, args):
+        # something went wrong
+        if len(args) == 0:
+            print('something went wrong in a calculate command: no args')
+            return
+
+        arg = args[0]
+
+        print('evaluating the pair: ' + str(arg))
+
+        # if this is even a pair, we need to keep parsing
+        if isinstance(arg, tuple):
+            print('was tuple')
+            return self.execute_command(arg)
+        elif isinstance(arg, str):
+            print('was string')
+            # check if this is a column or row 'column __'
+            if self.thesaurus.isColrow(arg):
+                # if row/col number or name
+                if self.stats.checkInitialized():
+                    if len(args) > 1:
+                        val = self.check_var_or_const(args[1])
+                        if arg in self.thesaurus.columns:
+                            #TODO get column
+                            return self.stats.getColumn(val)
+                        elif arg in self.thesaurus.rows:
+                            return self.stats.getRow(val)
+                        else:
+                            return None
+                    else: # argument list ended with col/row, haven't handled this case
+                        return None
+                else:
+                    print('file hasn\'t been loaded so I don\'t have columns or rows yet')
+
+            # check if this is a cell
+            if self.check_cell(arg):
+                print('was cell')
+                if self.stats.checkInitialized():
+                    return self.stats.getCellExcell(arg)
+                else:
+                    print('file hasn\'t been loaded so I don\'t know about ' + str(arg))
+
+            # check if this is a variable name or constant
+            val = self.check_var_or_const(arg)
+            if val is None: # variable name -- must be a column
+                if self.stats.checkInitialized():
+                    columns = self.stats.getColumnNames()
+                    if val in columns:
+                        return self.stats.getColumn(val)
+                    else:
+                        print(val + ' is not a proper column name')
+                        return None
+                else:
+                    print('file hasn\'t been loaded so I don\'t know about ' + str(val))
+            else: # int or float
+                return val
+
+
+        else:
+            print('something went wrong in a calculate command: invalid arg')
+
+    def show_command(self, args):
+        # something went wrong
+        if len(args) == 0:
+            print('something went wrong in a show command: no args')
+            return
+
+        arg = args[0]
+
+        # if this is even a pair, we need to keep parsing
+        if isinstance(arg, tuple):
+            res = self.execute_command(arg)
+            print(str(res))
+            return res
+        else:
+            print(str(arg))
+            return arg
+
+    def set_command(self, args):
+        # something went wrong
+        if len(args) == 0:
+            print('something went wrong in a set command: no args')
+            return
+
+        arg = args[0]
 
     def synthesize(self, tagged, cmd):
         stats = self.stats
@@ -202,8 +339,10 @@ class Synthesizer:
         # build_command call here, read is a special command
         print("building command: ")
         c = self.build_command(tagged)
-        print(c)
-        return c
+        print('c is ' + str(c))
+        res = self.execute_command(c)
+        print(res)
+        return res
 
 
         # Call the command -- based on the command call a list of stat ops
