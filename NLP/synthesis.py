@@ -284,7 +284,10 @@ class Synthesizer:
             print('something went wrong in a calculate command: no args')
             return
 
-        arg = args[0]
+        if isinstance(args, list):
+            arg = args[0]
+        else:
+            arg = args
 
         # if this is even a pair, we need to keep parsing
         if isinstance(arg, tuple):
@@ -340,7 +343,10 @@ class Synthesizer:
             print('Something went wrong in a show command: no args')
             return
 
-        arg = args[0]
+        if isinstance(args, list):
+            arg = args[0]
+        else:
+            arg = args
 
         # if this is even a pair, we need to keep parsing
         if isinstance(arg, tuple):
