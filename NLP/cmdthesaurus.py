@@ -19,6 +19,7 @@ class CmdThesaurus:
         self.colrows = ['column', 'columns', 'col', 'cols', 'row', 'rows']
         self.columns = ['column', 'columns', 'col', 'cols']
         self.rows = ['row', 'rows']
+        self.spreadsheetWords = ['all_data', 'spreadsheet', 'everything']
 
         # build quit synonyms
         self.quitSynonyms = buildSynList(self.quitSynonyms, "exit", wn.VERB)
@@ -50,6 +51,9 @@ class CmdThesaurus:
         self.setSynonyms = buildSynList(self.setSynonyms, "change", wn.VERB)
         self.setSynonyms = buildSynList(self.setSynonyms, "modify", wn.VERB)
         self.setSynonyms = list(set(self.setSynonyms))
+
+    def isSpreadsheet(self, word):
+        return (word.lower() in self.spreadsheetWords)
 
     def isColrow(self, word):
         return (word.lower() in self.colrows)

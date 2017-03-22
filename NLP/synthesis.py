@@ -6,7 +6,7 @@ import sys
 import string
 
 import trainer
-sys.path.insert(0, '../Statistics')
+sys.path.insert(0, 'Statistics')
 from statsop import StatsOp
 from cmdthesaurus import CmdThesaurus
 
@@ -49,7 +49,7 @@ class Synthesizer:
     def __init__(self):
         self.stats = StatsOp()
         self.thesaurus = CmdThesaurus()
-        self.unitagger = trainer.load_tagger('models/brown_all_uni.pkl')
+        self.unitagger = trainer.load_tagger('NLP/models/brown_all_uni.pkl')
         #self.bitagger = trainer.load_tagger('models/brown_all_bi.pkl')
         #self.tritagger = trainer.load_tagger('models/brown_all_tri.pkl')
 
@@ -156,32 +156,6 @@ class Synthesizer:
     def check_cell(self, cell):
         return self.cellReg.fullmatch(cell) != None
 
-    # build a command stack given list of tagged tokens
-    '''
-    def build_command(self, tokens):
-        command = []
-        previousNoun = False
-        for pair in tokens:
-            if(pair[1] == "VB"): #action to perform
-                command.append(pair[0])
-                self.commandStack.append(command)
-                command = []
-                
-            if(pair[1] == "CD" and previousNoun): #cardinal number (or location) after a given noun
-                command.append(pair[0])
-
-            if(pair[1][0] == "N"): #noun
-                command.append(pair[0])
-                previousNoun = True
-            else:
-                previousNoun = False
-            
-            if(pair[1] == "CC"):
-                self.commandStack.append(command)
-                command = []
-                
-        self.commandStack.append(command)
-    '''
 #----------------------------------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     def populateTree(self, node, taggedData):
         if len(taggedData) == 0: return node
@@ -205,7 +179,6 @@ class Synthesizer:
             taggedData.pop(0)
             node.addChild(self.populateTree(newNode, taggedData))
             return node
-
 
     def printTree(self, node, i, mylist):
         if len(node.getChildren()) == 0:
@@ -274,8 +247,6 @@ class Synthesizer:
         elif self.thesaurus.isSetSynonym(cmd[0]):
             return self.set_command(cmd[1])
 
-
-
     # calculate only cares about the first argument, unless it's 
     # a special var like column 2
     def calculate_command(self, args):
@@ -317,6 +288,13 @@ class Synthesizer:
                     return self.stats.getCellExcell(arg)
                 else:
                     print('file hasn\'t been loaded so I don\'t know about ' + str(arg))
+
+
+            if self.thesaurus.isSpreadsheet(arg):
+                if self.stats.checkInitialized():
+                    return self.stats.getData()
+                else:
+                    print('file hasn\'t been loaded so I don\'t have the data yet')
 
             # check if this is a variable name or constant
             val = self.check_var_or_const(arg)
@@ -375,10 +353,11 @@ class Synthesizer:
                     print('Something went wrong when trying to calculate the value to set')
                     return
 
-                cell = des[1][0]
+                cell = des[1]
                 if self.check_cell(cell):
                     if self.stats.checkInitialized():
                         self.stats.updateCellExcell(cell, res)
+                        print(str(cell) + ' has been set to ' + str(res))
                         return res    
                     else:
                         print('file hasn\'t been loaded so I don\'t know about ' + str(des[1][0]))
@@ -398,48 +377,8 @@ class Synthesizer:
 
         # If we come across any nouns or nones, we need to check if it's been initialized
         # build_command call here, read is a special command
-        print("building command: ")
         c = self.generateCommand(tagged)
         print('c is ' + str(c))
         res = self.execute_command(c)
         print(res)
         return res
-
-
-        # Call the command -- based on the command call a list of stat ops
-
-        # check if we've already initialized
-        '''
-        if stats.checkInitialized():
-
-            # Check if cmd is a row or column
-            cols = stats.getColumnNames()
-            rows = stats.getRowNames()
-
-            if check_name_in_list(cmd, cols):
-                print('name found in cols')
-            elif check_name_in_list(cmd, rows):
-                print('name found in rows')
-        
-
-        # check if command 
-        if tagged[0][1] == labels['verb']:
-            print("Processing Verb")
-            # Try to interpret this as a read initialization command
-            if not stats.checkInitialized():
-                self.read_data_cmd(tagged)
-            else:
-                print("Trying a non read command")
-                command = self.synonym_look_up(tagged[0][0].lower())
-                if command == "show":
-                    self.print_data_cmd(tagged)
-                pass # test printing column/row commands here?
-
-        if tagged[0][1] == labels['noun'] or tagged[0][1] == labels['nouns']:
-
-            print("Processing Noun")
-            if not stats.checkInitialized():
-                pass
-            else:
-                pass
-        '''

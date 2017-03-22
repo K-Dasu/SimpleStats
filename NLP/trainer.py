@@ -13,7 +13,9 @@ def train_and_save(filename, train_set, num):
     t = None
     if num == 1: #train a backoff
         t1 = nltk.UnigramTagger(train_set)
-        t = nltk.BigramTagger(train_set, backoff=t1)
+        t2 = nltk.BigramTagger(train_set, backoff=t1)
+        model = {'everything': 'NN'}
+        t = nltk.UnigramTagger(model = model, backoff = t2)
     elif num == 2:
         t = nltk.BigramTagger(train_set)
     elif num == 3:
@@ -33,8 +35,8 @@ def load_tagger(filename):
     return t
 
 # Uncomment to train - Trains over ntlk brown corpus
-brown_train = nltk.corpus.brown.tagged_sents()
-train_and_save('models/brown_all_uni.pkl', brown_train, 1)
+#brown_train = nltk.corpus.brown.tagged_sents()
+#train_and_save('models/brown_all_uni.pkl', brown_train, 1)
 #train_and_save('models/brown_all_bi.pkl', brown_train, 2)
 #train_and_save('models/brown_all_tri.pkl', brown_train, 3)
 
