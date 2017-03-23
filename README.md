@@ -3,9 +3,9 @@ Class project for ECS 240 programming languages
 
 Requires Python Version 3.5+
 
-Deploy Instructions:
+# Deploy Instructions:
 
-Open console or terminal
+## Open console or terminal
 
    Run the following command in terminal `python main.py`
 
@@ -16,24 +16,24 @@ Open console or terminal
 
    Ask your questions
 
-Example commands would be:
+# Example commands would be:
 
 
-To initialize a data set:
+## To initialize a data set:
 
 open sample.csv
 
 read sample.csv
 
 
-To view the data set:
+## To view the data set:
 
 show me everything
 
 show the spreadsheet
 
 
-To view a particular column/row/cell:
+## To view a particular column/row/cell:
 
 column 1
 
@@ -42,14 +42,14 @@ row 0
 what is cell b4
 
 
-set commands -- changing a cell won't save to file:
+## set commands -- changing a cell won't save to file:
 
 set a0 to 0
 
 set a0 to the average of column 2 and 3
 
 
-stat commands -- supports median, mean, std deviation, min, and max:
+## stat commands -- supports median, mean, std deviation, min, and max:
 
 get the average of column 1
 
