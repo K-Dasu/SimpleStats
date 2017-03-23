@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+from scipy import stats
 import os
 import string
 import os.path
@@ -182,34 +184,32 @@ class StatsOp:
             return None
         
     def calculateMin(self, df):
-        value = df.min()
-        return value.values[0]
+        value = df.values.min()
+        return value
     
     def calculateMax(self, df):
-        value = df.max()
-        return value.values[0]
+        value = df.values.max()
+        return value
     
     def calculateMean(self, df):
-        value = df.mean()
-        return value.values[0]
+        value = df.values.mean()
+        return value
     
     def calculateMode(self, df):
-        value = df.mode()
-        if len(value.mode()) == 0:
-            return "No repeats"
+        value = stats.mode(df.values)
         return value
     
     def calculateMedian(self, df):
-        value = df.median()
-        return value.values[0]
+        value = np.median(df.values)
+        return value
     
     def calculateStandardDeviation(self,df):
-        value = df.std()
-        return value.values[0]
+        value = df.values.std()
+        return value
     
     def calculateVariance(self,df):
-        value = df.var()
-        return value.values[0]
+        value = df.values.var()
+        return value
     
     
      #returns an array of the mean for each row
