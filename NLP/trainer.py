@@ -14,7 +14,7 @@ def train_and_save(filename, train_set, num):
     if num == 1: #train a backoff
         t1 = nltk.UnigramTagger(train_set)
         t2 = nltk.BigramTagger(train_set, backoff=t1)
-        model = {'everything': 'NN'}
+        model = {'everything': 'NN', 'max': 'NN'}
         t = nltk.UnigramTagger(model = model, backoff = t2)
     elif num == 2:
         t = nltk.BigramTagger(train_set)

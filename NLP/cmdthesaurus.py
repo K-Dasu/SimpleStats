@@ -29,6 +29,12 @@ class CmdThesaurus:
         # statops
         self.statops = ['mode', 'median', 'mean', 'average', 
                         'deviation', 'min', 'minimum', 'max', 'maximum']
+        self.mode = ['mode']
+        self.median = ['median']
+        self.mean = ['mean', 'average']
+        self.stdev = ['deviation']
+        self.min = ['min', 'minimum']
+        self.max = ['max', 'maximum']
 
         # build quit synonyms
         self.quitSynonyms = buildSynList(self.quitSynonyms, "exit", wn.VERB)
@@ -48,6 +54,7 @@ class CmdThesaurus:
 
         #build show/print synonyms
         self.calculateSynonyms = buildSynList(self.calculateSynonyms, "get", wn.VERB)
+        self.calculateSynonyms = buildSynList(self.calculateSynonyms, "take", wn.VERB)
         self.calculateSynonyms = buildSynList(self.calculateSynonyms, "calculate", wn.VERB)
         self.calculateSynonyms = buildSynList(self.calculateSynonyms, "see", wn.VERB)
         self.calculateSynonyms = buildSynList(self.calculateSynonyms, "evaluate", wn.VERB)

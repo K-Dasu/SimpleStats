@@ -1,6 +1,7 @@
 from nltk import word_tokenize
 from nltk import tag
 from enum import Enum
+import pandas as pd
 import re
 import sys
 import string
@@ -248,6 +249,10 @@ class Synthesizer:
         elif self.thesaurus.isSetSynonym(cmd[0]):
             return self.set_command(cmd[1])
 
+        # stats ops
+        elif self.thesaurus.isStatOp(cmd[0]):
+            return self.stat_command(cmd[0], cmd[1])
+
     # calculate only cares about the first argument, unless it's 
     # a special var like column 2
     def calculate_command(self, args):
@@ -270,14 +275,20 @@ class Synthesizer:
                 # if row/col number or name
                 if self.stats.checkInitialized():
                     if len(args) > 1:
-                        val = self.check_var_or_const(args[1])
-                        if arg in self.thesaurus.columns:
-                            #TODO get column
-                            return self.stats.getColumn(val)
-                        elif arg in self.thesaurus.rows:
-                            return self.stats.getRow(val)
+                        datafields = []
+                        i = 1
+                        while i < len(args):
+                            val = self.check_var_or_const(args[i])
+                            if arg in self.thesaurus.columns:
+                                datafields.append(self.stats.getColumn(val))
+                            elif arg in self.thesaurus.rows:
+                                datafields.append(self.stats.getRow(val))
+                            i += 1
+
+                        if len(datafields) == 1:
+                            return datafields[0]
                         else:
-                            return None
+                            return pd.concat(datafields, axis=1)
                     else: # argument list ended with col/row, haven't handled this case
                         return None
                 else:
@@ -375,6 +386,54 @@ class Synthesizer:
                 print("Something went wrong in trying to set a value to " + str(des[1]))
         else:
             print("Something went wrong in set command: invalid arg")
+
+    # 
+    def stat_command(self, cmd, args):
+        # something went wrong
+        if len(args) == 0:
+            print('Something went wrong in a statistics command: no args')
+            return
+
+        if not self.stats.checkInitialized():
+            print('I can\'t run stat operations until you give me a data set')
+            return
+
+        # TODO more than one arg for stat command
+        arg = args[0]
+        res = None
+        if isinstance(arg, tuple):
+            res = self.execute_command(arg) # evaluate argument
+
+            # check that it's a dataframe
+            if not isinstance(res, pd.DataFrame):
+                print('I can\'t use this in a stats operation: ' + str(res))
+        else:
+            print('Something went wrong in a statistics command: invalid arg')
+            return
+
+        # bad value
+        if res is None:
+            print('Something went wrong in a statistics command: invalid arg')
+            return
+
+        # process command on argument
+        cmd = cmd.lower()
+        if cmd in self.thesaurus.mode:
+            return self.stats.calculateMode(res)
+        elif cmd in self.thesaurus.median:
+            return self.stats.calculateMedian(res)
+        elif cmd in self.thesaurus.mean:
+            return self.stats.calculateMean(res)
+        elif cmd in self.thesaurus.stdev:
+            return self.stats.calculateStandardDeviation(res)
+        elif cmd in self.thesaurus.min:
+            return self.stats.calculateMin(res)
+        elif cmd in self.thesaurus.max:
+            return self.stats.calculateMax(res)
+        else:
+            return
+
+
 
     def synthesize(self, tagged, cmd):
         stats = self.stats
