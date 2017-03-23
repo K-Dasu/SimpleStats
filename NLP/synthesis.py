@@ -277,9 +277,11 @@ class Synthesizer:
                     if len(args) > 1:
                         datafields = []
                         i = 1
+                        colFlag = 0
                         while i < len(args):
                             val = self.check_var_or_const(args[i])
                             if arg in self.thesaurus.columns:
+                                colFlag = 1
                                 datafields.append(self.stats.getColumn(val))
                             elif arg in self.thesaurus.rows:
                                 datafields.append(self.stats.getRow(val))
@@ -288,7 +290,7 @@ class Synthesizer:
                         if len(datafields) == 1:
                             return datafields[0]
                         else:
-                            return pd.concat(datafields, axis=1)
+                            return pd.concat(datafields, axis=colFlag)
                     else: # argument list ended with col/row, haven't handled this case
                         return None
                 else:
